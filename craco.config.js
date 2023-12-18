@@ -1,8 +1,11 @@
 // craco.config.js
-import { resolve } from "path";
 
-export const webpack = {
-  alias: {
-    "@": resolve(__dirname, "src/"),
+const path = require("path");
+
+module.exports = {
+  webpack: {
+    alias: {
+      "@": path.resolve(__dirname, "src/"),
+    },
   },
 };
