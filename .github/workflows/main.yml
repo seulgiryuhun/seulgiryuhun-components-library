@@ -1,0 +1,63 @@
+name: Release Workflow
+
+on:
+  push:
+    branches:
+      - feat/workflows
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 14
+
+    - name: Install Dependencies
+      run: npm install
+
+    - name: Run Tests
+      run: npm test
+
+  release:
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 14
+
+    - name: Install Dependencies
+      run: npm install
+
+    - name: Bump Version
+      run: npm version $(git log -1 --pretty=%B | grep -E '^#(major|minor|patch)' | cut -c 2-)
+
+    - name: Push Tags
+      run: git push origin --tags
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        draft: false
+        prerelease: false
+
+    # - name: Publish to npm
+    #   uses: actions/npm@v2
+    #   with:
+    #     token: ${{ secrets.NPM_TOKEN }}
