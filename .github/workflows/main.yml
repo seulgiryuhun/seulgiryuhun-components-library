@@ -16,13 +16,21 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: 14
+        node-version: 16
+        registry-url: 'https://registry.npmjs.org/'
+        scope: '@my-org'
+        token: ${{secrets.NPM_TOKEN}}
+        default: false
+        pnpm-version: 'latest'
+
+    - name: Install pnpm
+      run: npm install -g pnpm
 
     - name: Install Dependencies
-      run: npm install
+      run: pnpm install
 
     - name: Run Tests
-      run: npm test
+      run: pnpm test
 
   release:
     needs: test
@@ -35,29 +43,39 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: 14
+        node-version: 16
+        registry-url: 'https://registry.npmjs.org/'
+        scope: '@my-org'
+        token: ${{secrets.NPM_TOKEN}}
+        default: false
+        pnpm-version: 'latest'
+    
+    - name: Install pnpm
+      run: npm install -g pnpm
 
     - name: Install Dependencies
-      run: npm install
+      run: pnpm install
 
-    - name: Bump Version
-      run: npm version $(git log -1 --pretty=%B | grep -E '^#(major|minor|patch)' | cut -c 2-)
+    - name: Build Library
+      run: pnpm run build:lib
 
-    - name: Push Tags
-      run: git push origin --tags
+    - name: Set new version
+      run: |
+        current_version=$(node -e "console.log(require('./package.json').version)")
+        commit_message=$(git log -1 --pretty=%B)
 
-    - name: Create Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
-        draft: false
-        prerelease: false
+        if [[ $commit_message == "Release v"* ]]; then
+          new_version=$(echo $commit_message | sed -n 's/Release v//p')
 
-    # - name: Publish to npm
-    #   uses: actions/npm@v2
-    #   with:
-    #     token: ${{ secrets.NPM_TOKEN }}
+          if [[ "${current_version}" != "${new_version}" ]]; then
+            echo "New version: ${new_version}"
+            pnpm version --no-git-tag-version "${new_version}" -m 'ver: %s'
+            git push origin HEAD --follow-tags
+          else
+            echo "No version change detected. Skipping version update."
+          fi
+        else
+          echo "Commit message does not match the pattern. Skipping version update."
+        fi
+
+    
