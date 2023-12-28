@@ -74,11 +74,6 @@ jobs:
             npm version patch --no-git-tag-version
           fi
 
-          echo "New version: ${new_version}"
-
-          # Update package.json version
-          npm version --no-git-tag-version ${new_version}
-
           # Get the new version
           new_version=$(node -e "console.log(require('./package.json').version)")
 
