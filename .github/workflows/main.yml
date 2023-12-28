@@ -75,7 +75,7 @@ jobs:
           fi
 
           # Get the new version
-          new_version=$(node -e "console.log('new version:'require('./package.json').version)")
+          new_version=$(node -e "console.log('new version:', require('./package.json').version)")
 
           # Check if version changed
           if [[ "${current_version}" != "${new_version}" ]]; then
