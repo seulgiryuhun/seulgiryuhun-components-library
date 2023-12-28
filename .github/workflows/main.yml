@@ -65,13 +65,13 @@ jobs:
 
           if [[ $commit_message == *"[major]"* ]]; then
             echo "Bumping to a major version"
-            new_version=$(semver -i major $current_version)
+            npm version major --no-git-tag-version
           elif [[ $commit_message == *"[minor]"* ]]; then
             echo "Bumping to a minor version"
-            new_version=$(semver -i minor $current_version)
+            npm version minor --no-git-tag-version
           else
             echo "Bumping to a patch version"
-            new_version=$(semver -i patch $current_version)
+            npm version patch --no-git-tag-version
           fi
 
           echo "New version: ${new_version}"
