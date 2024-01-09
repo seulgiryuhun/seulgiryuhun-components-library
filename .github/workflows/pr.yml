@@ -1,0 +1,33 @@
+name: Run Workflow on Pull Request
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 16
+        registry-url: 'https://registry.npmjs.org/'
+        scope: '@my-org'
+        token: ${{secrets.NPM_TOKEN}}
+
+    - name: Install pnpm
+      run: npm install -g pnpm
+
+    - name: Install Dependencies
+      run: pnpm install
+
+    - name: Run Tests
+      run: pnpm test
+
+    

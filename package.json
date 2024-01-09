@@ -1,7 +1,6 @@
 {
   "name": "seulgiryuhun-components-library",
   "version": "0.1.0",
-  "private": true,
   "scripts": {
     "start": "craco start",
     "build:lib": "craco build",
